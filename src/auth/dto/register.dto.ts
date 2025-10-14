@@ -1,6 +1,7 @@
 import { IsEmail, IsNotEmpty, MinLength } from 'class-validator';
+import { IRegisterDTO } from '../types/Dtos';
 
-export class RegisterDto {
+export class RegisterDTO implements IRegisterDTO {
   @IsEmail()
   email: string;
 

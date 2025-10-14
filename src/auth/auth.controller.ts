@@ -2,15 +2,13 @@ import {
   BadRequestException,
   Body,
   Controller,
-  Header,
   Headers,
   Post,
-  Req,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UserService } from '../user/user.service';
 import { LoginDTO } from './dto/login.dto';
-import { RegisterDto } from './dto/register.dto';
+import { RegisterDTO } from './dto/register.dto';
 
 @Controller('/auth')
 export class AuthController {
@@ -20,7 +18,7 @@ export class AuthController {
   ) {}
 
   @Post('/register')
-  async register(@Body() body: RegisterDto) {
+  async register(@Body() body: RegisterDTO) {
     const user = await this.userService.create(body);
     return await this.authService.register(user, body);
   }
