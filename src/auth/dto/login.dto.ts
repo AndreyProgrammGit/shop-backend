@@ -1,6 +1,7 @@
 import { IsEmail, IsNotEmpty } from 'class-validator';
+import { ILoginDTO } from '../types/Dtos';
 
-export class LoginrDto {
+export class LoginDTO implements ILoginDTO {
   @IsEmail()
   email: string;
 
