@@ -29,6 +29,6 @@ import { Tokens, TokensSchema } from 'src/database/tokens.schemes';
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy],
-  exports: [JwtStrategy, PassportModule, JwtModule],
+  exports: [JwtStrategy, PassportModule, JwtModule, AuthService],
 })
 export class AuthModule {}

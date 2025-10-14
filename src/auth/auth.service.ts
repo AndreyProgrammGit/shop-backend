@@ -29,9 +29,11 @@ export class AuthService {
   }
 
   async validateToken(accessToken: string | undefined) {
-    const databaseToken = await this.authSchema.findOne({
+    const databaseToken = await this.tokensSchema.findOne({
       accessToken,
     });
+
+    console.log(databaseToken, 'databaseToken');
 
     return Boolean(databaseToken);
   }
