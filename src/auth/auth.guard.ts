@@ -16,25 +16,14 @@ export class AuthGuard implements CanActivate {
     const token = this.extractTokenFromHeader(request);
 
     if (!token) {
-      throw new UnauthorizedException('Token not provided');
+      throw new UnauthorizedException('Token is not provided');
     }
 
-    console.log(token, 'token');
+    const payload = await this.authService.parseToken(token);
 
-    const accessToken = await this.authService.validateToken(token);
+    request['user'] = payload.sub;
 
-    console.log(accessToken, 'accessToken');
-
-    if (!accessToken) {
-      throw new UnauthorizedException('Token not found in database');
-    }
-
-    try {
-      request['user'] = this.authService.verifyToken(token);
-      return true;
-    } catch {
-      throw new UnauthorizedException('Invalid or expired token');
-    }
+    return true;
   }
 
   private extractTokenFromHeader(request: Request): string | undefined {

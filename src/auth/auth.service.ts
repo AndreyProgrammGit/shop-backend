@@ -23,19 +23,31 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async verifyToken(token: string) {
-    const payload = await this.jwtService.verifyAsync<JwtPayload>(token);
-    return payload;
+  parseToken(accessToken: string) {
+    return this.validateToken(accessToken);
   }
 
-  async validateToken(accessToken: string | undefined) {
-    const databaseToken = await this.tokensSchema.findOne({
+  protected async validateToken(accessToken: string) {
+    let payload: JwtPayload;
+    try {
+      payload = await this.jwtService.verifyAsync<JwtPayload>(accessToken);
+    } catch (error) {
+      if (error.message === 'is expired') {
+        throw new UnauthorizedException('Token is expired');
+      } else {
+        throw new UnauthorizedException('Token is invalid');
+      }
+    }
+
+    const modelToken = await this.tokensSchema.findOne({
       accessToken,
     });
 
-    console.log(databaseToken, 'databaseToken');
+    if (modelToken == null) {
+      throw new UnauthorizedException('Token is invalid');
+    }
 
-    return Boolean(databaseToken);
+    return payload;
   }
 
   async register(user: IUser, dto: RegisterDTO) {
@@ -50,8 +62,6 @@ export class AuthService {
     try {
       const tokens = await this.createJWTToken(user);
       return {
-        name: user.email,
-        id: user._id,
         accessToken: tokens.accessToken,
         refreshToken: tokens.refreshToken,
       };
@@ -92,8 +102,6 @@ export class AuthService {
     }
 
     return {
-      name: user.email,
-      id: user._id,
       accessToken: tokens.accessToken,
       refreshToken: tokens.refreshToken,
     };
@@ -132,7 +140,7 @@ export class AuthService {
   }
 
   private async createJWTToken(user: IUser) {
-    const payload = { sub: user._id };
+    const payload = { sub: user._id, email: user.email };
     const accessToken = this.jwtService.sign(payload, { expiresIn: '15m' });
     const refreshToken = randomBytes(128).toString('base64url');
 

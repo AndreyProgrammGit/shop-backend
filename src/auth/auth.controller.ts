@@ -19,6 +19,8 @@ export class AuthController {
 
   @Post('/register')
   async register(@Body() body: RegisterDTO) {
+    const userDB = await this.userService.findByEmail(body.email);
+    if (userDB) throw new BadRequestException('Email must be unique');
     const user = await this.userService.create(body);
     return await this.authService.register(user, body);
   }

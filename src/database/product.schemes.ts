@@ -1,8 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { v4 as uuidv4 } from 'uuid';
 
-export interface IProducts {
+export interface IProduct {
+  productId: string;
   name: string;
-  productId: number;
   count: number;
   price: number;
   desc: string;
@@ -11,15 +12,15 @@ export interface IProducts {
 }
 
 @Schema()
-export class Product implements IProducts {
+export class Product implements IProduct {
+  @Prop({ type: String, required: true, default: () => uuidv4() })
+  productId: string;
   @Prop({ type: String, required: true })
   name: string;
   @Prop({ type: String, required: true })
   brand: string;
   @Prop({ type: String, required: true })
   category: string;
-  @Prop({ type: Number, required: true })
-  productId: number;
   @Prop({ type: Number, required: true })
   count: number;
   @Prop({ type: Number, required: true })

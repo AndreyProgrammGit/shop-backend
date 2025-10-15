@@ -7,6 +7,7 @@ import { ConfigModule } from '@nestjs/config';
 import { ProductController } from './product/product.controller';
 import { ProductService } from './product/product.service';
 import { ProductModule } from './product/product.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -15,9 +16,11 @@ import { ProductModule } from './product/product.module';
     }),
     MongooseModule.forRoot('mongodb://admin:password123@localhost:27017', {
       dbName: 'shop',
+      autoIndex: true,
     }),
     AuthModule,
     ProductModule,
+    UserModule,
   ],
   controllers: [AppController, ProductController],
   providers: [AppService, ProductService],

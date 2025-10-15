@@ -2,17 +2,18 @@ import { NestFactory } from '@nestjs/core';
 import { getModelToken } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { AppModule } from 'src/app.module';
-import { IProducts, Product } from 'src/database/product.schemes';
+import { IProduct, Product } from 'src/database/product.schemes';
+
+type TProductSeed = Omit<IProduct, 'productId'>;
 
 async function productPopulate() {
   const app = await NestFactory.createApplicationContext(AppModule);
 
-  const productModel = app.get<Model<IProducts>>(getModelToken(Product.name));
+  const productModel = app.get<Model<IProduct>>(getModelToken(Product.name));
 
-  const products: IProducts[] = [
+  const products: TProductSeed[] = [
     {
       name: 'Smartphone X1',
-      productId: 101,
       count: 50,
       price: 699,
       desc: 'Latest smartphone with AMOLED display and fast processor.',
@@ -21,7 +22,6 @@ async function productPopulate() {
     },
     {
       name: 'Wireless Headphones Pro',
-      productId: 102,
       count: 120,
       price: 199,
       desc: 'Noise-cancelling over-ear headphones with long battery life.',
@@ -30,7 +30,6 @@ async function productPopulate() {
     },
     {
       name: 'Gaming Laptop G5',
-      productId: 103,
       count: 30,
       price: 1499,
       desc: 'High-performance laptop with RTX graphics card and 16GB RAM.',
@@ -39,7 +38,6 @@ async function productPopulate() {
     },
     {
       name: '4K LED TV 55"',
-      productId: 104,
       count: 20,
       price: 799,
       desc: 'Ultra HD television with smart features and HDR support.',
@@ -48,7 +46,6 @@ async function productPopulate() {
     },
     {
       name: 'Electric Kettle 1.7L',
-      productId: 105,
       count: 75,
       price: 49,
       desc: 'Fast-boiling kettle with auto shut-off and boil-dry protection.',
@@ -57,7 +54,6 @@ async function productPopulate() {
     },
     {
       name: 'Running Shoes AirFlex',
-      productId: 106,
       count: 200,
       price: 120,
       desc: 'Lightweight and comfortable running shoes with breathable mesh.',
@@ -66,7 +62,6 @@ async function productPopulate() {
     },
     {
       name: 'Smartwatch Series 7',
-      productId: 107,
       count: 90,
       price: 299,
       desc: 'Fitness tracker and smartwatch with heart rate monitor.',
@@ -75,7 +70,6 @@ async function productPopulate() {
     },
     {
       name: 'Coffee Maker Deluxe',
-      productId: 108,
       count: 40,
       price: 249,
       desc: 'Automatic drip coffee maker with programmable timer and grinder.',
