@@ -14,6 +14,7 @@ import { Model } from 'mongoose';
 import { randomBytes } from 'crypto';
 import { ITokens, Tokens } from 'src/database/tokens.schemes';
 import { JwtPayload } from './types/ValidatePayload';
+import type { Response } from 'express';
 
 @Injectable()
 export class AuthService {
@@ -71,7 +72,7 @@ export class AuthService {
     }
   }
 
-  async login(user: IUser, dto: ILoginDTO) {
+  async login(user: IUser, dto: ILoginDTO, res: Response) {
     const credentials = await this.authSchema.findOne({ userId: user._id });
     if (!credentials) {
       throw new BadRequestException('Invalid credentials');
@@ -101,28 +102,37 @@ export class AuthService {
       tokens = await this.createJWTToken(user);
     }
 
-    return {
+    res.cookie('refreshToken', tokens.refreshToken, {
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: false,
+      path: '/',
+    });
+
+    return res.json({
       accessToken: tokens.accessToken,
       refreshToken: tokens.refreshToken,
-    };
+    });
   }
 
-  async refreshTokens({
-    accessToken,
-    refreshToken,
-  }: {
-    accessToken: string;
-    refreshToken: string;
-  }) {
+  async refreshTokens(
+    {
+      accessToken,
+      refreshToken,
+    }: {
+      accessToken: string;
+      refreshToken: string;
+    },
+    res: Response,
+  ) {
     const tokenRecordRef = await this.tokensSchema.findOne({ refreshToken });
     const tokenRecordAcc = await this.tokensSchema.findOne({
-      accessToken: accessToken.split(' '),
+      accessToken: accessToken.split(' ')[1],
     });
 
     if (!tokenRecordRef || !tokenRecordAcc) {
       throw new UnauthorizedException('Invalid refresh token');
     }
-
     const userId = tokenRecordRef.userId;
 
     const payload = { sub: userId };
@@ -131,12 +141,20 @@ export class AuthService {
 
     tokenRecordRef.accessToken = newAccessToken;
     tokenRecordRef.refreshToken = newRefreshToken;
+
     await tokenRecordRef.save();
 
-    return {
+    res.cookie('refreshToken', newRefreshToken, {
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: false,
+      path: '/',
+    });
+
+    return res.json({
       accessToken: newAccessToken,
       refreshToken: newRefreshToken,
-    };
+    });
   }
 
   private async createJWTToken(user: IUser) {
