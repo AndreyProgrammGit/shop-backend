@@ -5,14 +5,14 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
-import { IUser } from 'src/database/user.schemas';
+import { IUser } from '../database/user.schemas';
 import { RegisterDTO } from './dto/register.dto';
 import { ILoginDTO } from './types/Dtos';
 import { InjectModel } from '@nestjs/mongoose';
-import { Auth, IAuth } from 'src/database/auth.schemes';
+import { Auth, IAuth } from '../database/auth.schemes';
 import { Model } from 'mongoose';
 import { randomBytes } from 'crypto';
-import { ITokens, Tokens } from 'src/database/tokens.schemes';
+import { ITokens, Tokens } from '../database/tokens.schemes';
 import { JwtPayload } from './types/ValidatePayload';
 import type { Response } from 'express';
 

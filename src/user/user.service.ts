@@ -1,10 +1,10 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { User, IUser } from 'src/database/user.schemas';
-import type { IRegisterDTO } from 'src/auth/types/Dtos';
+import { User, IUser } from '../database/user.schemas';
+import type { IRegisterDTO } from '../auth/types/Dtos';
 import { JwtService } from '@nestjs/jwt';
-import { JwtPayload } from 'src/auth/types/ValidatePayload';
+import { JwtPayload } from '../auth/types/ValidatePayload';
 
 @Injectable()
 export class UserService {

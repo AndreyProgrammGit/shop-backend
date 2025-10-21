@@ -1,8 +1,8 @@
 import { NestFactory } from '@nestjs/core';
 import { getModelToken } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { AppModule } from 'src/app.module';
-import { IProduct, Product } from 'src/database/product.schemes';
+import { AppModule } from '../app.module';
+import { IProduct, Product } from '../database/product.schemes';
 
 type TProductSeed = Omit<IProduct, 'productId'>;
 

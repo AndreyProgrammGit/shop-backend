@@ -7,8 +7,8 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { UserModule } from '../user/user.module';
 import { MongooseModule } from '@nestjs/mongoose';
-import { Auth, AuthSchema } from 'src/database/auth.schemes';
-import { Tokens, TokensSchema } from 'src/database/tokens.schemes';
+import { Auth, AuthSchema } from '../database/auth.schemes';
+import { Tokens, TokensSchema } from '../database/tokens.schemes';
 
 @Module({
   imports: [

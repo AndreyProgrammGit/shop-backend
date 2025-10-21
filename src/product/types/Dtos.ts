@@ -35,3 +35,19 @@ export interface IUpdateDTO {
   category: TCategory;
   brand: TBrand;
 }
+
+export interface IFilterDTO {
+  categories: TCategory[];
+  brands: TBrand[];
+  price: number;
+  limit: number;
+  offset: number;
+}
+
+export interface ISearchDTO {
+  search: string;
+}
+
+export interface IDeleteDTO {
+  productId: string;
+}

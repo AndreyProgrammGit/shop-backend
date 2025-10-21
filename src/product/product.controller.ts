@@ -10,14 +10,22 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
-import { AuthGuard } from 'src/auth/auth.guard';
+import { AuthGuard } from '../auth/auth.guard';
 import { ProductDTO } from './dto/createProduct.dto';
 import { UpdateDTO } from './dto/updateProduct.dto';
+import { FilterDTO } from './dto/filter.dto';
+import { SearchDTO } from './dto/search.dto';
+import { DeleteDTO } from './dto/delete.dto';
 
-@Controller('/product')
+@Controller('/products')
 @UseGuards(AuthGuard)
 export class ProductController {
   constructor(private productService: ProductService) {}
+
+  @Get('/')
+  async filterProduct(@Query() dto: FilterDTO) {
+    return await this.productService.filterBy(dto);
+  }
 
   @Post('/create')
   async createProduct(@Body() dto: ProductDTO) {
@@ -25,13 +33,13 @@ export class ProductController {
   }
 
   @Get('/search')
-  async searchProduct(@Query('search') search: string) {
-    return await this.productService.search(search);
+  async searchProduct(@Query('search') dto: SearchDTO) {
+    return await this.productService.search(dto);
   }
 
   @Delete('/destroy')
-  async destroyProduct(@Body() body: { productId: string }) {
-    return await this.productService.delete(body.productId);
+  async destroyProduct(@Body() dto: DeleteDTO) {
+    return await this.productService.delete(dto);
   }
 
   @Patch('/update')
@@ -39,13 +47,8 @@ export class ProductController {
     return await this.productService.update(body);
   }
 
-  @Get('/find/:id')
+  @Get('/product/:id')
   async findProductById(@Param('id') id: string) {
     return await this.productService.findById(id);
-  }
-
-  @Get('/getAll')
-  async getAllProducts() {
-    return await this.productService.findAll();
   }
 }
