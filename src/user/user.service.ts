@@ -5,11 +5,14 @@ import { User, IUser } from '../database/user.schemas';
 import type { IRegisterDTO } from '../auth/types/Dtos';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from '../auth/types/ValidatePayload';
+import { ITelegramUser, TelegramUser } from '../database/telegramUser.schemes';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectModel(User.name) private userSchema: Model<IUser>,
+    @InjectModel(TelegramUser.name)
+    private telegramUserSchema: Model<ITelegramUser>,
     private jwtService: JwtService,
   ) {}
 
@@ -33,18 +36,32 @@ export class UserService {
     const decoding: JwtPayload = await this.jwtService.decode(
       tokenWithoutBearer[1],
     );
-    const user = await this.userSchema.findOne({ _id: decoding.sub });
 
-    if (!user) {
-      throw new UnauthorizedException('Invalid user');
-    }
+    console.log(decoding, 'decoding');
+    // const user = await this.userSchema.findOne({ userId: decoding.sub });
+
+    // if (!user) {
+    //   throw new UnauthorizedException('Invalid user');
+    // }
+
+    const user = await this.telegramUserSchema.findOne({
+      _id: decoding.sub,
+    });
+
+    console.log(user, 'user');
 
     return {
-      email: user.email,
-      name: user.name,
-      surname: user.surname,
-      old: user.old,
-      city: user.city,
+      username: user?.username,
+      firstname: user?.firstName,
+      lastname: user?.lastName,
     };
+
+    // return {
+    //   email: user.email,
+    //   name: user.name,
+    //   surname: user.surname,
+    //   old: user.old,
+    //   city: user.city,
+    // };
   }
 }

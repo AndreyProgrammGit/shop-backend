@@ -29,7 +29,7 @@ export class ProductService {
   }
 
   async findById(id: string) {
-    return this.findById(id);
+    return this.productModel.findById(id);
   }
 
   async update(dto: IUpdateDTO) {

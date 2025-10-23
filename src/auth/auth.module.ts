@@ -9,13 +9,20 @@ import { UserModule } from '../user/user.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Auth, AuthSchema } from '../database/auth.schemes';
 import { Tokens, TokensSchema } from '../database/tokens.schemes';
+import { TelegramUserModule } from '../telegram-user/telegram-user.module';
+import {
+  TelegramUser,
+  TelegramUserSchema,
+} from '../database/telegramUser.schemes';
 
 @Module({
   imports: [
     UserModule,
+    TelegramUserModule,
     MongooseModule.forFeature([
       { name: Auth.name, schema: AuthSchema },
       { name: Tokens.name, schema: TokensSchema },
+      { name: TelegramUser.name, schema: TelegramUserSchema },
     ]),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({

@@ -9,6 +9,7 @@ import { ProductService } from './product/product.service';
 import { ProductModule } from './product/product.module';
 import { UserModule } from './user/user.module';
 import { ProductModel } from './product/product.model';
+import { TelegramUserModule } from './telegram-user/telegram-user.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { ProductModel } from './product/product.model';
     AuthModule,
     ProductModule,
     UserModule,
+    TelegramUserModule,
   ],
   controllers: [AppController, ProductController],
   providers: [AppService, ProductService, ProductModel],

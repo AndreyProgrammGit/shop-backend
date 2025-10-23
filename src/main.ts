@@ -17,7 +17,15 @@ async function bootstrap() {
   );
 
   app.enableCors({
-    origin: 'http://localhost:3000',
+    origin: [
+      'https://dth0gn02-3000.euw.devtunnels.ms',
+      'https://t.me/som3thing_shopBot/mybotshop',
+      'https://t.me',
+      'https://web.telegram.org',
+      'https://*.t.me',
+      'https://*.telegram.org',
+      'http://localhost:3000',
+    ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
