@@ -2,16 +2,13 @@ import {
   IsArray,
   IsDivisibleBy,
   IsIn,
-  IsNotEmpty,
   IsNumber,
   IsOptional,
-  IsString,
-  ValidateIf,
 } from 'class-validator';
 import type { IFilterDTO, TBrand, TCategory } from '../types/Dtos';
-import { Transform } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 
-const categories = [
+export const categories = [
   'Electronics',
   'Audio',
   'Computers',
@@ -21,7 +18,7 @@ const categories = [
   'Kitchen Appliances',
 ] as const;
 
-const brands = [
+export const brands = [
   'TechBrand',
   'SoundWave',
   'GameTech',
@@ -32,19 +29,24 @@ const brands = [
   'BrewMaster',
 ] as const;
 
-const limits = [9, 18];
+const limits = [3, 6, 9, 18];
 
 export class FilterDTO implements IFilterDTO {
   @IsOptional()
+  sort: 'asc' | 'desc' | null;
+
+  @IsOptional()
+  @Type(() => Number)
   @IsNumber()
   @IsIn(limits, {
-    message: 'Brand must be one of the predefined values',
+    message: 'limit must be one of the predefined values: 3, 6, 9, 18',
   })
   limit: number = limits[0];
 
   @IsOptional()
+  @Type(() => Number)
   @IsNumber()
-  @IsDivisibleBy(9, { message: 'Offset must be a multiple of 5.' })
+  @IsDivisibleBy(3, { message: 'Offset must be a multiple of 3.' })
   offset: number = 0;
 
   @IsOptional()

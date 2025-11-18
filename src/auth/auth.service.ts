@@ -82,7 +82,7 @@ export class AuthService {
 
   async telegramLogin(initDataRaw: string, res: Response) {
     console.log(initDataRaw);
-    validate(initDataRaw, this.token, { expiresIn: 3600 });
+    validate(initDataRaw, this.token);
 
     const initData = parse(initDataRaw);
 

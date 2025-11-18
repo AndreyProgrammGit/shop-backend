@@ -2,9 +2,16 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import cookieParser from 'cookie-parser';
 import { ValidationPipe } from '@nestjs/common';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  const cacheManager = app.get(CACHE_MANAGER);
+
+  const store: any = (cacheManager as any).store;
+  console.log('store keys:', Object.keys(store || {}));
+  console.log('redis client exists:', !!store?.client);
 
   app.use(cookieParser());
 

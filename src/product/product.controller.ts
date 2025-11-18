@@ -16,6 +16,7 @@ import { UpdateDTO } from './dto/updateProduct.dto';
 import { FilterDTO } from './dto/filter.dto';
 import { SearchDTO } from './dto/search.dto';
 import { DeleteDTO } from './dto/delete.dto';
+import { ProductsCartDTO } from './dto/productsCart.dto';
 
 @Controller('/products')
 @UseGuards(AuthGuard)
@@ -27,17 +28,17 @@ export class ProductController {
     return await this.productService.filterBy(dto);
   }
 
-  @Post('/create')
+  @Post('/')
   async createProduct(@Body() dto: ProductDTO) {
     return await this.productService.create(dto);
   }
 
   @Get('/search')
-  async searchProduct(@Query('search') dto: SearchDTO) {
+  async searchProduct(@Query() dto: SearchDTO) {
     return await this.productService.search(dto);
   }
 
-  @Delete('/destroy')
+  @Delete('/')
   async destroyProduct(@Body() dto: DeleteDTO) {
     return await this.productService.delete(dto);
   }
@@ -47,7 +48,12 @@ export class ProductController {
     return await this.productService.update(body);
   }
 
-  @Get('/product/:id')
+  @Get('/cart')
+  async findProductsFromCart(@Query() dto: ProductsCartDTO) {
+    return await this.productService.findProductsFromCart(dto);
+  }
+
+  @Get('/:id')
   async findProductById(@Param('id') id: string) {
     return await this.productService.findById(id);
   }

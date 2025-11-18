@@ -37,6 +37,7 @@ export interface IUpdateDTO {
 }
 
 export interface IFilterDTO {
+  sort: 'asc' | 'desc' | null;
   categories: TCategory[];
   brands: TBrand[];
   price: number;
@@ -50,4 +51,8 @@ export interface ISearchDTO {
 
 export interface IDeleteDTO {
   productId: string;
+}
+
+export interface IProductsCartDTO {
+  productIds: string[];
 }

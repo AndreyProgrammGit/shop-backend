@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  Inject,
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
@@ -8,90 +9,97 @@ import { Model } from 'mongoose';
 import { IProduct, Product } from '../database/product.schemes';
 import { ProductDTO } from './dto/createProduct.dto';
 import { UpdateDTO } from './dto/updateProduct.dto';
-import { FilterDTO } from './dto/filter.dto';
+import { brands, categories, FilterDTO } from './dto/filter.dto';
 import { SearchDTO } from './dto/search.dto';
 import { DeleteDTO } from './dto/delete.dto';
-import { TBrand, TCategory } from './types/Dtos';
+import { IProductsCartDTO } from './types/Dtos';
+import { ProductBrandsPipe } from './pipes/ProductBrandsPipe';
+import { ProductCategoriesPipe } from './pipes/ProductCategoriesPipe';
+import { ProductPricePipe } from './pipes/ProductPricePipe';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import type { Cache } from 'cache-manager';
 
-interface IPipe {
-  key: string;
-  instruction: Record<string, unknown>;
-}
-
-class BrandsPipe implements IPipe {
-  key = 'brands' as const;
-  instruction: Record<string, unknown>;
-
-  constructor(brands: TBrand[]) {
-    this.instruction = {
-      brand: {
-        $in: brands,
-      },
-    };
-  }
-}
-
-class CategoriesPipe implements IPipe {
-  key = 'categories' as const;
-  instruction: Record<string, unknown>;
-
-  constructor(categories: TCategory[]) {
-    this.instruction = {
-      category: {
-        $in: categories,
-      },
-    };
-  }
-}
-
-class PricePipe implements IPipe {
-  key = 'price' as const;
-  instruction: Record<string, unknown>;
-
-  constructor(price: number) {
-    this.instruction = {
-      price: {
-        $lte: price,
-      },
-    };
-  }
-}
+const PRODUCTS_CACHE_COUNT = 'count';
+const PRODUCTS_CACHE_LIST = 'list';
 
 @Injectable()
 export class ProductModel {
   constructor(
     @InjectModel(Product.name) private productSchemes: Model<IProduct>,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
-  async filterBy(dto: FilterDTO) {
-    const pipes = [
-      new BrandsPipe(dto.brands),
-      new CategoriesPipe(dto.categories),
-      new PricePipe(dto.price),
-    ] as const;
+  async productsCart(dto: IProductsCartDTO) {
+    const products = await this.productSchemes.find({
+      productId: { $in: dto.productIds },
+    });
+    if (!products) {
+      throw new BadRequestException('In DB it doesn`t exist anything like ');
+    }
 
-    return this.productSchemes
-      .find(
-        {
-          $and: pipes
-            .filter((pipe) => dto[pipe.key])
-            .map((pipe) => pipe.instruction),
-        },
-        null,
-        {
-          $skip: dto.offset,
-          $limit: dto.limit,
-        },
-      )
-      .exec();
+    return products;
+  }
+
+  async filterBy(dto: FilterDTO) {
+    const pipes = (
+      [
+        new ProductBrandsPipe(),
+        new ProductCategoriesPipe(),
+        new ProductPricePipe(),
+      ] as const
+    ).filter((pipe) => dto[pipe.key]);
+
+    const { filters, options } = pipes.reduce<any>(
+      (acc, pipe) => {
+        return pipe.execute(dto, acc);
+      },
+      {
+        filters: [],
+        options: { sort: [], skip: dto.offset, limit: dto.limit },
+      },
+    );
+
+    const cacheable =
+      !pipes.length && !options.sort.length && !dto.offset && dto.limit === 9;
+
+    if (cacheable) {
+      const cachedProducts =
+        await this.cacheManager.get<string>(PRODUCTS_CACHE_LIST);
+
+      if (cachedProducts) {
+        return JSON.parse(cachedProducts);
+      }
+    }
+
+    try {
+      const total = await this.productSchemes.countDocuments({ $and: filters });
+      const products = await this.productSchemes
+        .find({ $and: filters }, null, options)
+        .exec();
+
+      const result = { total, products, brands, categories };
+
+      if (cacheable) {
+        await this.cacheManager.set(
+          PRODUCTS_CACHE_LIST,
+          JSON.stringify(result),
+          120000,
+        );
+      }
+
+      return result;
+    } catch {
+      throw new InternalServerErrorException('Cannot find filters product');
+    }
   }
 
   async create(dto: ProductDTO) {
     const productDB = await this.productSchemes.findOne({ name: dto.name });
     if (productDB)
-      throw new BadRequestException('This product is already exist in DB');
+      throw new BadRequestException('This product already exist in DB');
     try {
       const product = await this.productSchemes.create(dto);
+
       return {
         name: product.name,
         productId: product.productId,
@@ -103,7 +111,7 @@ export class ProductModel {
 
   async search(dto: SearchDTO) {
     const products = await this.productSchemes.find({
-      name: { $regex: dto.search },
+      name: { $regex: dto.search, $options: 'i' },
     });
 
     return products;
